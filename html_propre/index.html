@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>DOM-based XSS Lab</title>
+        <link href="./style.css" rel="stylesheet">
+        <style>
+            #video-background {
+                position: absolute;
+                right: 0;
+                bottom: 0;
+                min-width: 100%;
+                min-height: 100%;
+                width: auto;
+                height: auto;
+                z-index: -1;
+            }
+        </style>
+    </head>
+    <body>
+        <video autoplay muted loop id="video-background">
+            <source src="./background.mp4" type="video/mp4">
+            Votre navigateur ne prend pas en charge la balise vidéo.
+        </video>
+        <p>Search for something:</p>
+        <form>
+            <input type="text" name="search" />
+            <input type="submit" value="Search" />
+            
+        </form>
+        <p>________________</p>
+        <!-- Cette version de la balise script est plus propre, notamment avec escape de l'input -->
+        <script>
+            var search = window.location.search;
+            var params = new URLSearchParams(search);
+            var query = params.get('search');            
+            var resultContainer = document.createElement('p');
+            if (query) {
+                var escapedQuery = query.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                resultContainer.innerHTML = 'You searched for: ' + escapedQuery;
+                if (/\<script\>.*\<\/script\>/i.test(query)) {
+                    console.error('La variable query contient une tentative XSS.');
+                    resultContainer.innerHTML = 'Ah ? On veut faire une exploitation XSS ? OK !'
+                }
+                document.body.appendChild(resultContainer);
+            }
+        </script>        
+    </body>
+</html>

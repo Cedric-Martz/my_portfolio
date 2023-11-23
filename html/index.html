@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>DOM-based XSS Lab</title>
+        <link href="./style.css" rel="stylesheet">
+        <style>
+            #video-background {
+                position: absolute;
+                right: 0;
+                bottom: 0;
+                min-width: 100%;
+                min-height: 100%;
+                width: auto;
+                height: auto;
+                z-index: -1;
+            }
+        </style>
+    </head>
+    <body>
+        <button id="portfolioButton" style="display: none;" onclick="redirectToPortfolio()">Portfolio</button>
+        <video autoplay muted loop id="video-background">
+            <source src="./background.mp4" type="video/mp4">
+            Votre navigateur ne prend pas en charge la balise vidéo.
+        </video>
+        <p>Search for something:</p>
+        <form>
+            <input type="text" name="search" />
+            <input type="submit" value="Search" />
+            
+        </form>
+        <p>________________</p>
+        <script>
+            var search = window.location.search;
+            var params = new URLSearchParams(search);
+            var query = params.get('search');
+            document.write('You searched for : ' + query);
+        
+            if (/\<script\>.*\<\/script\>/.test(query)) {
+                console.log('La variable query contient un XSS.');
+                // Rendre le bouton visible
+                var portfolioButton = document.getElementById('portfolioButton');
+                portfolioButton.style.display = 'inline-block';
+            }
+        
+            // Fonction pour rediriger vers 'portfolio.html'
+            function redirectToPortfolio() {
+                window.location.href = 'portfolio.html';
+            }
+        </script>
+        
+    </body>
+</html>
